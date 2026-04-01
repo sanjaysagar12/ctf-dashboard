@@ -25,7 +25,7 @@ export const TriggerProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return () => listeners.current.delete(callback);
     }, []);
 
-    // SSE connection removed — Redis has been removed from the project.
+
     // Real-time updates are no longer needed; pages fetch on mount instead.
 
     return (

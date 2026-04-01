@@ -58,7 +58,6 @@ export default function AdminDashboardPage() {
     });
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [resettingCache, setResettingCache] = useState(false);
 
     // Fetch Data
     const fetchData = async () => {
@@ -137,34 +136,7 @@ export default function AdminDashboardPage() {
         }
     };
 
-    const handleCacheReset = async () => {
-        if (!confirm('Are you sure you want to clear all Redis cache? This will affect challenges and leaderboard data.')) {
-            return;
-        }
 
-        setResettingCache(true);
-        try {
-            const res = await fetch("/api/admin/cache/reset", {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                alert('Cache cleared successfully!');
-                // Refresh data after clearing cache
-                fetchData();
-            } else {
-                alert('Failed to clear cache');
-            }
-        } catch (error) {
-            console.error('Cache reset error:', error);
-            alert('Error clearing cache');
-        } finally {
-            setResettingCache(false);
-        }
-    };
 
     // Show loading only if auth is still loading OR (we have a token but data is loading)
     if (loading || (token && loadingData && !stats)) return (
@@ -428,15 +400,6 @@ export default function AdminDashboardPage() {
                                     <Link href="/leaderboard" className="bg-zinc-100 border-2 border-black p-2 hover:bg-zinc-200 transition-all font-pixel text-[10px] uppercase">
                                         Monitor Public
                                     </Link>
-                                    {dbUser.role === 'ADMIN' && (
-                                        <button
-                                            onClick={handleCacheReset}
-                                            disabled={resettingCache}
-                                            className="bg-red-600 text-white p-2 hover:bg-red-700 transition-all font-pixel text-[10px] uppercase disabled:opacity-50 disabled:cursor-not-allowed border-2 border-black"
-                                        >
-                                            {resettingCache ? 'Clearing...' : 'Clear Cache 🗑️'}
-                                        </button>
-                                    )}
                                     <button onClick={fetchData} className="bg-black text-white p-2 hover:bg-zinc-800 transition-all font-pixel text-[10px] uppercase">
                                         Refresh Data
                                     </button>
