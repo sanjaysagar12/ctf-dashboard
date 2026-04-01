@@ -98,6 +98,9 @@ export default function LeaderboardPage() {
     useEffect(() => {
         if (!authLoading) {
             fetchLeaderboard();
+            // Polling for live updates
+            const interval = setInterval(fetchLeaderboard, 30000); // 30s
+            return () => clearInterval(interval);
         }
     }, [token, authLoading]);
 
