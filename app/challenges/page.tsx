@@ -431,7 +431,7 @@ export default function ChallengesPage() {
                                             <input
                                                 type="text"
                                                 disabled={eventState !== 'START' || !token || !dbUser?.teamId}
-                                                placeholder={!token ? "LOGIN TO SUBMIT" : !dbUser?.teamId ? "JOIN A TEAM" : eventState === 'START' ? "TEXUS{...}" : "LOCKED"}
+                                                placeholder={!token ? "LOGIN TO SUBMIT" : !dbUser?.teamId ? "JOIN A TEAM" : eventState === 'START' ? "CCEE{...}" : "LOCKED"}
                                                 className="flex-1 bg-white border-2 border-black p-4 font-mono text-lg outline-none focus:shadow-[4px_4px_0px_0px_#ccff00] disabled:bg-zinc-200 disabled:text-zinc-500 disabled:cursor-not-allowed"
                                                 value={flagInput}
                                                 onChange={(e) => setFlagInput(e.target.value)}
