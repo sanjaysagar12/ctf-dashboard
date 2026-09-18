@@ -49,28 +49,32 @@ function readConfigFile(): AppConfig {
     return { ...DEFAULT_CONFIG };
 }
 
-function writeConfigFile(config: AppConfig): void {
-    try {
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
-    } catch (e) {
-        console.error('[CONFIG] Failed to write event-config.json:', e);
-        throw e;
+// In-memory config state, seeded once from event-config.json at process start.
+// Runtime updates (e.g. admin toggling eventState) are kept in memory only —
+// event-config.json is never written to, so it always reflects the initial/default state.
+let memoryConfig: AppConfig | null = null;
+
+function getMemoryConfig(): AppConfig {
+    if (memoryConfig === null) {
+        memoryConfig = readConfigFile();
+        console.log('[CONFIG] Initialized in-memory config from event-config.json:', memoryConfig);
     }
+    return memoryConfig;
 }
 
 export async function getConfig(): Promise<AppConfig> {
-    const fileConfig = readConfigFile();
+    const currentConfig = getMemoryConfig();
 
     // Still allow env-var overrides for static/deployment-time settings
-    const dynamicScoring = process.env.DYNAMIC_SCORING === 'true' || fileConfig.dynamicScoring;
+    const dynamicScoring = process.env.DYNAMIC_SCORING === 'true' || currentConfig.dynamicScoring;
     const rateLimit = {
-        maxAttempts: Number(process.env.RATE_LIMIT_MAX_ATTEMPTS) || fileConfig.rateLimit.maxAttempts,
-        windowSeconds: Number(process.env.RATE_LIMIT_WINDOW_SECONDS) || fileConfig.rateLimit.windowSeconds,
-        cooldownSeconds: Number(process.env.RATE_LIMIT_COOLDOWN_SECONDS) || fileConfig.rateLimit.cooldownSeconds,
+        maxAttempts: Number(process.env.RATE_LIMIT_MAX_ATTEMPTS) || currentConfig.rateLimit.maxAttempts,
+        windowSeconds: Number(process.env.RATE_LIMIT_WINDOW_SECONDS) || currentConfig.rateLimit.windowSeconds,
+        cooldownSeconds: Number(process.env.RATE_LIMIT_COOLDOWN_SECONDS) || currentConfig.rateLimit.cooldownSeconds,
     };
 
     return {
-        ...fileConfig,
+        ...currentConfig,
         dynamicScoring,
         rateLimit,
     };
@@ -98,7 +102,7 @@ export async function updateConfig(newConfig: Partial<AppConfig>): Promise<AppCo
         }
     };
 
-    writeConfigFile(updatedConfig);
-    console.log('[CONFIG] event-config.json updated:', updatedConfig);
+    memoryConfig = updatedConfig;
+    console.log('[CONFIG] In-memory config updated (event-config.json left untouched):', updatedConfig);
     return updatedConfig;
 }
