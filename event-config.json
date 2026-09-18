@@ -1,5 +1,5 @@
 {
-    "eventState": "STOP",
+    "eventState": "START",
     "publicChallenges": true,
     "publicLeaderboard": true,
     "dynamicScoring": false,
